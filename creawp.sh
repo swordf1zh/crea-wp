@@ -18,8 +18,9 @@ echo "Si la base de datos y el usuario ya existen, se borran y crean nuevamente.
 read -p "Procedemos a crear la nueva base de datos? (s/n): " new_db
 echo "============================================"
 
-if [ "$new_db" == s ] ; then
-	echo "Ejecutando creacion de base de datos y usuario."
+[ "$new_db" != s ] && echo "Proceso cancelado." && exit
+
+echo "Ejecutando creacion de base de datos y usuario."
 
 mysql -u root<<EOF
 DROP DATABASE IF EXISTS $dbname;
@@ -30,17 +31,13 @@ GRANT ALL PRIVILEGES ON $dbname.* TO '$dbuser'@'localhost';
 ALTER DATABASE $dbname CHARACTER SET utf8 COLLATE utf8_general_ci;
 FLUSH PRIVILEGES;
 EOF
-else
-	echo "Proceso cancelado."
-	exit
-fi
 
+echo
+echo "Creación de base de datos terminada"
 echo
 
 # Inicio del proceso de instalación de Wordpress
 #clear
-echo "Creación de base de datos terminada"
-echo ""
 echo "=========================================="
 echo "Elija el modo de instalación de Wordpress:"
 echo "=========================================="
@@ -50,83 +47,82 @@ echo "2. Salir"
 echo ""
 read -p "Elija el método de instalación: " install_method
 
-if [ "$install_method" == 1 ]; then
+[ "$install_method" != 1 ] && echo "Hasta luego." && exit
 
-	# Inicio del proceso de instalación de Wordpress usando wp-cli
-	echo "==================================="
-	echo "Uno momento... instalando wp-cli"
-	echo "==================================="
-	curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-	chmod +x wp-cli.phar
-	cp wp-cli.phar /usr/bin/wp
+# Inicio del proceso de instalación de Wordpress usando wp-cli
+echo "==================================="
+echo "Uno momento... instalando wp-cli"
+echo "==================================="
+curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+chmod +x wp-cli.phar
+cp wp-cli.phar /usr/bin/wp
 
-	echo "=========================="
-	echo "Terminé de instalar wp-cli"
-	echo "=========================="
-	echo
-	read -p "Crear un NUEVO directorio para WordPress [s/n]: " new
-	read -p "Nombre del directorio de wordpress para instalar WP: " dir_name
+echo "=========================="
+echo "Terminé de instalar wp-cli"
+echo "=========================="
+echo
+read -p "Crear un NUEVO directorio para WordPress [s/n]: " new
+read -p "Nombre del directorio de wordpress para instalar WP: " dir_name
 
-	if [ "$new" == s ] ; then
-		rm -rf $dir_name
-		mkdir -p $dir_name
-	fi
-	cd $dir_name
+if [ "$new" == s ] ; then
+	rm -rf $dir_name
+	mkdir -p $dir_name
+fi
+cd $dir_name
 
 
-	# Ingresando detalles del nuevo sitio de Wordpress
-	#clear
-	echo ""
-	echo "==================================================================="
-	echo "Listo para instalar Wordpress, solo ingrese algunos detalles más"
-	echo "==================================================================="
-	read -p "url del sitio: " url
-	read -p "Título del sitio: " title
-	read -p "Nombre de usuario del Admin: " admin_name
-	read -sp "Password del Admin: " admin_pass
-	echo
-	read -p "Email del Admin: " admin_email
-	echo
-	read -p "Ejecutar instalación? [s/n]: " run_wp_install
+# Ingresando detalles del nuevo sitio de Wordpress
+#clear
+echo ""
+echo "==================================================================="
+echo "Listo para instalar Wordpress, solo ingrese algunos detalles más"
+echo "==================================================================="
+read -p "url del sitio: " url
+read -p "Título del sitio: " title
+read -p "Nombre de usuario del Admin: " admin_name
+read -sp "Password del Admin: " admin_pass
+echo
+read -p "Email del Admin: " admin_email
+echo
+read -p "Ejecutar instalación? [s/n]: " run_wp_install
 
-	if [ "$run_wp_install" == n ] ; then
-		exit
-	else
-		echo "=================================================="
-		echo "Un robot ahora está instalando WordPress por ti."
-		echo "=================================================="
-		echo ""
-		# Descargando el último paquete de WordPress usando wp-cli
-		wp core download --locale=es_ES --allow-root
+[ "$run_wp_install" == n ] && echo "Hasta luego." && exit
 
-		#asignamos un nuevo prefijo para nuestras tablas, aumentando la seguridad
-		newdbprefix="wp_"
-		read -p "Nuevo prefijo de las tablas par la base de datos ej. wpol33_ [default: wp_]: " newdbprefix
+echo "=================================================="
+echo "Un robot ahora está instalando WordPress por ti."
+echo "=================================================="
+echo ""
+# Descargando el último paquete de WordPress usando wp-cli
+wp core download --locale=es_ES --allow-root
 
-		# Crear un archivo wp-config usando las credenciales definidas
-		wp core config --dbhost=$dbhost --dbname=$dbname --dbuser=$dbuser --dbpass=$dbpass --dbprefix=$newdbprefix --allow-root
-		chmod 644 wp-config.php
+#asignamos un nuevo prefijo para nuestras tablas, aumentando la seguridad
+newdbprefix="wp_"
+read -p "Nuevo prefijo de las tablas par la base de datos ej. wpol33_ [default: wp_]: " newdbprefix
 
-		# Instalación del sitio de Wordpress usando las credenciales definidas
-		wp core install --url=$url --title="$title" --admin_name=$admin_name --admin_password=$admin_pass --admin_email=$admin_email --allow-root
+# Crear un archivo wp-config usando las credenciales definidas
+wp core config --dbhost=$dbhost --dbname=$dbname --dbuser=$dbuser --dbpass=$dbpass --dbprefix=$newdbprefix --allow-root
+chmod 644 wp-config.php
 
-		#otras acciones para limpiar instalaciones de temas/plugins
-    		wp post delete 1 2 --force --allow-root # borra los posts/paginas de ejemplo
-		wp plugin delete akismet --allow-root
-    		wp plugin delete hello --allow-root
-    		wp theme delete twentyseventeen --allow-root
-    		wp theme delete twentynineteen --allow-root
-		wp theme update twentytwenty --allow-root
+# Instalación del sitio de Wordpress usando las credenciales definidas
+wp core install --url=$url --title="$title" --admin_name=$admin_name --admin_password=$admin_pass --admin_email=$admin_email --allow-root
 
-		#algunos ajustes default necesarios
-		wp option update  --allow-root blogdescription ""
-    		wp option update  --allow-root start_of_week 0
-    		wp option update  --allow-root timezone_string "America/Panama"
-    		wp option update --allow-root permalink_structure "/%postname%"
+#otras acciones para limpiar instalaciones de temas/plugins
+wp post delete 1 2 --force --allow-root # borra los posts/paginas de ejemplo
+wp plugin delete akismet --allow-root
+wp plugin delete hello --allow-root
+wp theme delete twentyseventeen --allow-root
+wp theme delete twentynineteen --allow-root
+wp theme update twentytwenty --allow-root
 
-		wp plugin install better-wp-security --allow-root
-		wp plugin install go-live-update-urls --activate --allow-root
-		wp plugin install classic-editor --allow-root
+#algunos ajustes default necesarios
+wp option update  --allow-root blogdescription ""
+wp option update  --allow-root start_of_week 0
+wp option update  --allow-root timezone_string "America/Panama"
+wp option update --allow-root permalink_structure "/%postname%"
+
+wp plugin install better-wp-security --allow-root
+wp plugin install go-live-update-urls --activate --allow-root
+wp plugin install classic-editor --allow-root
 
 cat > .htaccess<<EOF
 # BEGIN WordPress
@@ -139,23 +135,20 @@ RewriteRule . /index.php [L]
 # END WordPress
 EOF
 
-		echo ""
-		echo "================================================"
-		echo "Asignando usuario y grupo de linux"
-		echo "================================================"
-		read -p "Host usuario: " hostuser
-		read -p "Host grupo: " hostgroup
-		chown -R $hostuser:$hostgroup $dir_name
-		echo "Permisos cambiados a: $hostuser:$hostgroup $dir_name"
-		ls -la $dir_name
+echo ""
+echo "================================================"
+echo "Asignando usuario y grupo de linux"
+echo "================================================"
+read -p "Host usuario: " hostuser
+read -p "Host grupo: " hostgroup
+chown -R $hostuser:$hostgroup $dir_name
+echo "Permisos cambiados a: $hostuser:$hostgroup $dir_name"
+ls -la $dir_name
 
-		echo "================================================"
-		echo "Limpiando un poco..."
-		echo "================================================"
-		rm -rf readme.html license.txt wp-config-sample.php;
-		echo "Proceso completado!"
+echo "================================================"
+echo "Limpiando un poco..."
+echo "================================================"
+rm -rf readme.html license.txt wp-config-sample.php;
+echo "Proceso completado!"
 
-	fi
-else
-	exit
 fi
