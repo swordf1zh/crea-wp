@@ -29,3 +29,10 @@ Pendientes:
 - Agregar otros plugins a la lista por default.
 - Asegurar mejor la instancia con reglas específicas en el archivo .htaccess
 - Crear un archivo de parámetros con la receta de la instancia a crear.
+
+
+## Instrucciones
+Ejecuta este comando en tu terminal:
+```shell
+bash <(curl -sL https://github.com/ernestoamg/crea-wp/raw/master/creawp.sh)
+```
