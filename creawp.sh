@@ -61,14 +61,6 @@ echo "=========================="
 echo "Terminé de instalar wp-cli"
 echo "=========================="
 echo
-read -p "Crear un NUEVO directorio para WordPress [s/n]: " new
-read -p "Nombre del directorio de wordpress para instalar WP: " dir_name
-
-if [ "$new" == s ] ; then
-	rm -rf $dir_name
-	mkdir -p $dir_name
-fi
-cd $dir_name
 
 
 # Ingresando detalles del nuevo sitio de Wordpress
@@ -77,6 +69,33 @@ echo ""
 echo "==================================================================="
 echo "Listo para instalar Wordpress, solo ingrese algunos detalles más"
 echo "==================================================================="
+
+wp_dir_install()
+{
+	echo
+	read -p "Nombre del directorio para instalar WordPress: " dir_name
+	if [[ -d $dir_name ]]; then
+		echo "El directorio '$dir_name' ya existe:"
+  		echo "  1. Escoger otro nombre"
+  		echo "  2. Usar este directorio y BORRAR TODO su contenido"
+		echo
+		read -p "Seleccione una opción: " -n 1 -r
+		if [ $REPLY == 1 ]; then
+			wp_dir_install
+		else
+			rm -rf $dir_name/*
+		fi
+	else
+		read -p "El directorio '$dir_name' no existe, desea crearlo [s/n]: " -n 1 -r
+		if [[ $REPLY =~ ^[Ss]$ ]]; then
+			mkdir $dir_name
+		else
+			wp_dir_install
+		fi
+	fi
+}
+
+cd $dir_name
 read -p "url del sitio: " url
 read -p "Título del sitio: " title
 read -p "Nombre de usuario del Admin: " admin_name
