@@ -56,8 +56,7 @@ echo "Uno momento... instalando wp-cli"
 echo "==================================="
 curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
 chmod +x wp-cli.phar
-cp wp-cli.phar /usr/bin/wp
-
+sudo mv wp-cli.phar /usr/bin/wp
 echo "=========================="
 echo "Terminé de instalar wp-cli"
 echo "=========================="
@@ -111,18 +110,18 @@ echo "Un robot ahora está instalando WordPress por ti."
 echo "=================================================="
 echo ""
 # Descargando el último paquete de WordPress usando wp-cli
-wp core download --locale=es_ES --allow-root
+wp core download --locale=es_ES
 
 #asignamos un nuevo prefijo para nuestras tablas, aumentando la seguridad
 newdbprefix="wp_"
 read -p "Nuevo prefijo de las tablas par la base de datos ej. wpol33_ [default: wp_]: " newdbprefix
 
 # Crear un archivo wp-config usando las credenciales definidas
-wp core config --dbhost=$dbhost --dbname=$dbname --dbuser=$dbuser --dbpass=$dbpass --dbprefix=$newdbprefix --allow-root
+wp core config --dbhost=$dbhost --dbname=$dbname --dbuser=$dbuser --dbpass=$dbpass --dbprefix=$newdbprefix
 chmod 644 wp-config.php
 
 # Instalación del sitio de Wordpress usando las credenciales definidas
-wp core install --url=$url --title="$title" --admin_name=$admin_name --admin_password=$admin_pass --admin_email=$admin_email --allow-root
+wp core install --url=$url --title="$title" --admin_name=$admin_name --admin_password=$admin_pass --admin_email=$admin_email
 
 echo
 echo "Instalación de WordPress completa!"

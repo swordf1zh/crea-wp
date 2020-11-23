@@ -24,7 +24,6 @@ Es script realiza las siguientes tareas:
 
 
 Pendientes:
-- Eliminar la dependencia del usuario root y ejecutar como el usuario que instala la instancia.
 - Cambiar de vuelta los privilegios elevados al usuario en la base de datos.
 - Agregar otros plugins a la lista por default.
 - Asegurar mejor la instancia con reglas específicas en el archivo .htaccess
