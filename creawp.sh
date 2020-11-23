@@ -15,10 +15,10 @@ echo ""
 echo "============================================"
 echo "Crearemos una nueva base de datos con las credenciales proporcionadas."
 echo "Si la base de datos y el usuario ya existen, se borran y crean nuevamente."
-read -p "Procedemos a crear la nueva base de datos? (s/n): " new_db
+read -p "Procedemos a crear la nueva base de datos? (s/n): " -n 1 -r
 echo "============================================"
 
-[ "$new_db" != s ] && echo "Proceso cancelado." && exit
+[[ $REPLY =~ ^[^Ss]$ ]] && echo "Proceso cancelado." && exit
 
 echo "Ejecutando creacion de base de datos y usuario."
 
@@ -37,17 +37,18 @@ echo "Creación de base de datos terminada"
 echo
 
 # Inicio del proceso de instalación de Wordpress
-#clear
-echo "=========================================="
-echo "Elija el modo de instalación de Wordpress:"
-echo "=========================================="
-echo ""
-echo "1. Instalar Wordpress usando wp-cli"
-echo "2. Salir"
-echo ""
-read -p "Elija el método de instalación: " install_method
+cat <<EOF
+==========================================
+Elija el modo de instalación de Wordpress:
+==========================================
 
-[ "$install_method" != 1 ] && echo "Hasta luego." && exit
+1. Instalar Wordpress usando wp-cli
+2. Salir
+
+EOF
+
+read -p "Elija el método de instalación: " -n 1 -r
+[ "$REPLY" != 1 ] && echo "Hasta luego." && exit
 
 # Inicio del proceso de instalación de Wordpress usando wp-cli
 echo "==================================="
@@ -100,12 +101,10 @@ read -p "url del sitio: " url
 read -p "Título del sitio: " title
 read -p "Nombre de usuario del Admin: " admin_name
 read -sp "Password del Admin: " admin_pass
-echo
 read -p "Email del Admin: " admin_email
 echo
-read -p "Ejecutar instalación? [s/n]: " run_wp_install
-
-[ "$run_wp_install" == n ] && echo "Hasta luego." && exit
+read -p "Ejecutar instalación? [s/n]: " -n 1 -r
+[[ $REPLY =~ ^[^Ss]$ ]] && echo "Hasta luego." && exit
 
 echo "=================================================="
 echo "Un robot ahora está instalando WordPress por ti."
