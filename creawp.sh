@@ -124,36 +124,10 @@ chmod 644 wp-config.php
 # Instalación del sitio de Wordpress usando las credenciales definidas
 wp core install --url=$url --title="$title" --admin_name=$admin_name --admin_password=$admin_pass --admin_email=$admin_email --allow-root
 
-#otras acciones para limpiar instalaciones de temas/plugins
-wp post delete 1 2 --force --allow-root # borra los posts/paginas de ejemplo
-wp plugin delete akismet --allow-root
-wp plugin delete hello --allow-root
-wp theme delete twentyseventeen --allow-root
-wp theme delete twentynineteen --allow-root
-wp theme update twentytwenty --allow-root
-
-#algunos ajustes default necesarios
-wp option update  --allow-root blogdescription ""
-wp option update  --allow-root start_of_week 0
-wp option update  --allow-root timezone_string "America/Panama"
-wp option update --allow-root permalink_structure "/%postname%"
-
-wp plugin install better-wp-security --allow-root
-wp plugin install go-live-update-urls --activate --allow-root
-wp plugin install classic-editor --allow-root
-
-cat > .htaccess<<EOF
-# BEGIN WordPress
-RewriteEngine On
-RewriteBase /
-RewriteRule ^index\.php$ - [L]
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule . /index.php [L]
-# END WordPress
-EOF
-
-echo ""
+echo
+echo "Instalación de WordPress completa!"
+echo
+echo
 echo "================================================"
 echo "Asignando usuario y grupo de linux"
 echo "================================================"
@@ -163,10 +137,8 @@ chown -R $hostuser:$hostgroup $dir_name
 echo "Permisos cambiados a: $hostuser:$hostgroup $dir_name"
 ls -la $dir_name
 
-echo "================================================"
-echo "Limpiando un poco..."
-echo "================================================"
-rm -rf readme.html license.txt wp-config-sample.php;
-echo "Proceso completado!"
+echo
+read -p "Continuamos con los ajustes post-instalación? (s/n): " -n 1 -r
+if [[ $REPLY =~ ^[^Ss]$ ]] && echo "Disfruta WordPress!." && exit
 
-fi
+bash <(curl -sL https://raw.githubusercontent.com/ernestoamg/wpcli-post-instalacion/main/wp_post_instalacion.sh)
