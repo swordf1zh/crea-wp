@@ -94,6 +94,7 @@ wp_dir_install()
 		fi
 	fi
 }
+wp_dir_install
 
 cd $dir_name
 read -p "url del sitio: " url
